@@ -1,0 +1,381 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dropdown_x/flutter_dropdown_x.dart';
+import 'package:provider/provider.dart';
+
+class TransaksiTersimpan extends StatefulWidget {
+  @override
+  _TransaksiTersimpanState createState() => _TransaksiTersimpanState();
+}
+
+class _TransaksiTersimpanState extends State<TransaksiTersimpan> {
+  late Stream<QuerySnapshot> _foundItems2;
+  late bool _foundItems = false;
+  late String _enteredKeyword2;
+  late String _queryText;
+  // late String coba = "";
+
+  Stream<QuerySnapshot> _TransactionsStream =
+      FirebaseFirestore.instance.collection('transactions').snapshots();
+
+ 
+
+  void _searchController(String enteredKeyword) {
+    setState(() {
+      _queryText = enteredKeyword;
+    });
+   
+  }
+
+  get builder => null;
+
+  Widget buildSearch() {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextFormField(
+            onChanged: (value) => _searchController(value),
+            decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: 28,
+                ),
+                hintText: 'Cari Transaksi',
+                hintStyle: TextStyle(
+                    color: Colors.black, fontSize: 16, fontFamily: "MulishBold")
+                // border: OutlineInputBorder(),
+                ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildTransaksi() {
+    return Container(
+      width: 500,
+      height: 40,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.black,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+              flex: 2,
+              child: Container(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                  ),
+                  child: Text(
+                    'HARI INI',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "MulishBold"),
+                  ),
+                ),
+              )),
+          Expanded(
+              flex: 6,
+              child: Container(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    child: Text(
+                      '1 TRANSAKSI',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          // fontWeight: FontWeight.bold,
+                          fontFamily: "MulishBold"),
+                    )),
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget buildisi3() {
+    return StreamBuilder(
+      stream: _TransactionsStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text("sometimes is wrong");
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        List itemList = snapshot.data?.docs ?? [];
+        // var itemList = snapshot.data!.docs;
+
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListView.builder(
+              itemCount: itemList.length,
+              itemBuilder: (context, index) {
+                // String url = snapshot.data!.docs[index]['image'];
+                return GestureDetector(
+                  onTap: () {
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (_) =>
+                    //           EditPelanggan(docid: snapshot.data!.docs[index]),
+                    //     ));
+                  },
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 3,
+                          right: 3,
+                        ),
+                        child: ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(
+                              color: Colors.black,
+                            ),
+                          ),
+                          leading: Icon(Icons.access_alarm),
+                          title: Text(
+                            snapshot.data!.docs[index]['product_name'],
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          subtitle: Text(
+                            snapshot.data!.docs[index]['product_name'],
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+        );
+      },
+    );
+  }
+
+  Widget buildIsi2() {
+    return StreamBuilder(
+        stream: _TransactionsStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Text("sometimes is wrong");
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return Container(
+            child: ListView.builder(
+              // itemCount: itemList.length,
+              itemBuilder: (context, index) {
+                return Row(
+                  children: [
+                    Text("test"),
+                  ],
+                );
+              },
+            ),
+          );
+        });
+  }
+
+
+  Widget _showListSearch(String queryText) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('transactions')
+          .where('product_name', isEqualTo: queryText)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text("sometimes is wrong");
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        List itemList = snapshot.data?.docs ?? [];
+        // var itemList = snapshot.data!.docs;
+
+        return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildSearch(),
+              SizedBox(height: 1),
+              buildTransaksi(),
+              ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: itemList.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                        onTap: () {
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (_) => EditPelanggan(
+                          //           docid: snapshot.data!.docs[index]),
+                          //     ));
+                        },
+                        child: Card(
+                          elevation: 4,
+                          child: Container(
+                            decoration:
+                                new BoxDecoration(color: Colors.orange[300]),
+                            child: ListTile(
+                              leading: Icon(Icons.supervised_user_circle),
+                              title: Text(
+                                snapshot.data!.docs[index]['product_name'],
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                              subtitle:
+                                  Text(snapshot.data!.docs[index]['customers']),
+                              trailing: IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(
+                                  Icons.arrow_right,
+                                  color: Colors.black,
+                                  size: 25,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Column(
+                          //   children: [
+                          //     SizedBox(
+                          //       height: 4,
+                          //     ),
+                          //     Padding(
+                          //       padding: EdgeInsets.only(
+                          //         left: 0,
+                          //         right: 0,
+                          //       ),
+                          //       child: Container(
+                          //         decoration: new BoxDecoration(
+                          //             color: Colors.orange[300]),
+                          //         child: ListTile(
+                          //           shape: RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.circular(10),
+                          //             side: BorderSide(
+                          //               color: Colors.black,
+                          //             ),
+                          //           ),
+                          //           leading: Icon(Icons.ac_unit_sharp),
+                          //           title: Text(
+                          //             snapshot.data!.docs[index]['customers'],
+                          //             style: TextStyle(
+                          //               fontSize: 20,
+                          //             ),
+                          //           ),
+                          //           subtitle: Text(
+                          //             snapshot.data!.docs[index]['product_name'],
+                          //             style: TextStyle(
+                          //               fontSize: 20,
+                          //             ),
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                        ));
+                  })
+            ]);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: new AppBar(
+        //leading: new Icon(Icons.arrow_back_ios),
+        title: Text(
+          "Transaksi Tersimpan",
+          style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              //fontWeight: FontWeight.normal,
+              fontFamily: "MontserratBold"),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+            size: 25,
+          ),
+        ),
+        backgroundColor: Color(0xff51D0F8),
+      ),
+      body: _showListSearch(_queryText),
+      // Column(children: <Widget>[
+      //   buildSearch(),
+      //   SizedBox(height: 1),
+      //   buildTransaksi(),
+      //   // SizedBox(height: 10),
+      //   buildisi3(),
+      // ]),
+      bottomNavigationBar:
+          BottomNavigationBar(backgroundColor: Color(0xff51D0F8), items: [
+        BottomNavigationBarItem(
+          icon: Text(''),
+          label: '',
+          backgroundColor: Color(0xff51D0F8),
+        ),
+        BottomNavigationBarItem(
+          icon: Text(''),
+          label: '',
+          backgroundColor: Color(0xff51D0F8),
+        ),
+        BottomNavigationBarItem(
+          icon: Text(''),
+          label: '',
+          backgroundColor: Color(0xff51D0F8),
+        ),
+      ]),
+    );
+  }
+}
